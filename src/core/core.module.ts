@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { FCMModule } from 'src/fcm/fcm.module';
-import { getFCMConfig } from 'src/configs/fcm.config';
+import { FCMModule } from 'src/module/libs/fcm/fcm.module';
+import { getFCMConfig } from './config/fcm.config';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { getTypeOrmConfig } from 'src/configs/type-orm.config';
+import { getTypeOrmConfig } from './config/type-orm.config';
 
 @Module({
   imports: [
@@ -24,7 +23,5 @@ import { getTypeOrmConfig } from 'src/configs/type-orm.config';
       inject: [ConfigService],
     }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
-export class AppModule {}
+export class CoreModule {}
