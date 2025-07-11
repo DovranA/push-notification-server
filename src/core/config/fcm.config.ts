@@ -1,5 +1,5 @@
 import { ConfigService } from '@nestjs/config';
-import { TypeFCMOptions } from 'src/module/libs/fcm/types/fcm.type';
+import { TypeFCMOptions } from 'src/modules/libs/fcm/types/fcm.type';
 
 export function getFCMConfig(configService: ConfigService): TypeFCMOptions {
   const projectId = configService.getOrThrow<string>('FIREBASE_PROJECT_ID');

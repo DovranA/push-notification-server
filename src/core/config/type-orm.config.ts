@@ -12,5 +12,6 @@ export function getTypeOrmConfig(
     username: configService.getOrThrow<string>('POSTGRES_USER'),
     password: configService.getOrThrow<string>('POSTGRES_PASSWORD'),
     autoLoadEntities: true,
+    synchronize: true,
   };
 }
