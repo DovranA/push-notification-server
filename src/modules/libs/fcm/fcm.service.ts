@@ -3,6 +3,7 @@ import { FCMOptionsSymbol, TypeFCMOptions } from './types/fcm.type';
 import { type Messaging } from 'firebase-admin/lib/messaging/messaging';
 import {
   BatchResponse,
+  Message,
   MulticastMessage,
 } from 'firebase-admin/lib/messaging/messaging-api';
 
@@ -23,62 +24,54 @@ export class FCMService {
       })
       .messaging();
   }
-
-  public async sendNotification({
-    token,
-    title,
-    body,
-    icon,
-  }: {
-    token: string;
-    title: string;
-    body: string;
-    icon?: string;
-  }): Promise<string> {
+  public async subscribeTopic(token: string | string[], topic: string) {
+    return await this.messaging.subscribeToTopic(token, topic);
+  }
+  public async unsubscribeTopic(token: string | string[], topic: string) {
+    return await this.messaging.unsubscribeFromTopic(token, topic);
+  }
+  public async sendNotification(
+    token: string,
+    message: Omit<Message, 'token' | 'topic'>,
+  ) {
     return await this.messaging.send({
       token,
-      webpush: {
-        notification: { title, body, icon },
-      },
+      ...message,
     });
   }
 
-  public async sendNotificationMultipleTokens({
-    tokens,
-    title,
-    body,
-    imageUrl,
-  }: {
-    tokens: string[];
-    title: string;
-    body: string;
-    imageUrl?: string;
-  }): Promise<BatchResponse> {
-    const messages: MulticastMessage = {
+  public async sendMulticastNotification(
+    tokens: string[],
+    message: Omit<MulticastMessage, 'tokens'>,
+  ): Promise<BatchResponse> {
+    const validTokens = tokens.filter(
+      (token) => typeof token === 'string' && token.length > 100,
+    );
+    if (validTokens.length === 0) {
+      throw new Error('Нет допустимых FCM токенов для отправки');
+    }
+    const response = await this.messaging.sendEachForMulticast({
       tokens,
-      notification: {
-        title,
-        body,
-        imageUrl,
-      },
-    };
-    return await this.messaging.sendEachForMulticast(messages);
+      ...message,
+    });
+    response.responses.forEach((resp, idx) => {
+      if (!resp.success) {
+        console.warn(
+          `Ошибка отправки токена [${tokens[idx]}]:`,
+          resp.error?.message,
+        );
+      }
+    });
+    return response;
   }
 
-  public async sendTopicNotification({
-    topic,
-    title,
-    body,
-    imageUrl,
-  }: {
-    topic: string;
-    title: string;
-    body: string;
-    imageUrl?: string;
-  }): Promise<string> {
+  public async sendTopicNotification(
+    topic: string,
+    message: Omit<Message, 'token' | 'topic'>,
+  ): Promise<string> {
     return await this.messaging.send({
       topic,
-      notification: { title, body, imageUrl },
+      ...message,
     });
   }
 }

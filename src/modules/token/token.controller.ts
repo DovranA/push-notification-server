@@ -1,10 +1,10 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { TokensService } from './tokens.service';
+import { TokenService } from './token.service';
 import { CreateTokenDto } from './dto/create-token.dto';
 
-@Controller('tokens')
-export class TokensController {
-  constructor(private readonly tokensService: TokensService) {}
+@Controller('token')
+export class TokenController {
+  constructor(private readonly tokensService: TokenService) {}
 
   @Post()
   create(@Body() dto: CreateTokenDto) {

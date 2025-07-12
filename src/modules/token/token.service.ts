@@ -9,7 +9,7 @@ import { Repository } from 'typeorm';
 import { CreateTokenDto } from './dto/create-token.dto';
 
 @Injectable()
-export class TokensService {
+export class TokenService {
   constructor(
     @InjectRepository(TokenEntity)
     private readonly tokenRepository: Repository<TokenEntity>,
@@ -25,8 +25,7 @@ export class TokensService {
       throw new BadRequestException('error');
     }
   }
-  async userTokens(user_id: string): Promise<string[]> {
-    const tokens = await this.tokenRepository.find({ where: { user_id } });
-    return tokens.map((item) => item.token);
+  async userToken(user_id: string): Promise<TokenEntity[]> {
+    return await this.tokenRepository.find({ where: { user_id } });
   }
 }

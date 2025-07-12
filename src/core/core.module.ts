@@ -6,7 +6,7 @@ import { getFCMConfig } from './config/fcm.config';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { getTypeOrmConfig } from './config/type-orm.config';
-import { TokensModule } from 'src/modules/tokens/tokens.module';
+import { TokenModule } from 'src/modules/token/token.module';
 import { NotificationModule } from 'src/modules/notification/notification.module';
 
 @Module({
@@ -24,7 +24,7 @@ import { NotificationModule } from 'src/modules/notification/notification.module
       useFactory: getTypeOrmConfig,
       inject: [ConfigService],
     }),
-    TokensModule,
+    TokenModule,
     NotificationModule,
   ],
 })

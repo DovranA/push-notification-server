@@ -1,10 +1,10 @@
-import { TokenEntity } from 'src/modules/tokens/entities/token.entity';
+import { TokenEntity } from 'src/modules/token/entities/token.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
+  JoinTable,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -17,12 +17,13 @@ export class NotificationEntity {
   @Column({ type: 'uuid' })
   user_id: string;
 
-  @Column({ type: 'uuid', nullable: true })
-  token_id: string;
-
-  @ManyToOne(() => TokenEntity, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'token_id' })
-  token: TokenEntity;
+  @ManyToMany(() => TokenEntity, (token) => token.notifications)
+  @JoinTable({
+    name: 'token_notification',
+    joinColumn: { name: 'notification_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'token_id', referencedColumnName: 'id' },
+  })
+  tokens: TokenEntity[];
 
   @Column({ type: 'text' })
   title: string;
@@ -30,11 +31,14 @@ export class NotificationEntity {
   @Column({ type: 'text' })
   body: string;
 
-  @Column({ type: 'jsonb' })
-  data: string;
+  @Column({ type: 'jsonb', nullable: true })
+  data?: string;
 
   @Column({ enum: ['pending', 'send', 'failed'] })
   status: 'pending' | 'send' | 'failed';
+
+  @Column({ type: 'text', nullable: true })
+  image_url?: string;
 
   @UpdateDateColumn()
   send_at: Date;
