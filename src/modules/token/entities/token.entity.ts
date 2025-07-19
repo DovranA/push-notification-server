@@ -1,4 +1,5 @@
 import { NotificationEntity } from 'src/modules/notification/entities/notification.entity';
+import { TopicEntity } from 'src/modules/topic/entities/topic.entity';
 import {
   Column,
   CreateDateColumn,
@@ -7,6 +8,12 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+export enum DeviceType {
+  ANDROID = 'android',
+  IOS = 'ios',
+  WEB = 'web',
+}
 
 @Entity({ name: 'tokens' })
 export class TokenEntity {
@@ -19,11 +26,22 @@ export class TokenEntity {
   @Column({ type: 'text', unique: true })
   token: string;
 
-  @ManyToMany(() => NotificationEntity, (notification) => notification.tokens)
+  @ManyToMany(() => NotificationEntity, (notification) => notification.tokens, {
+    onDelete: 'CASCADE',
+  })
   notifications: NotificationEntity[];
+  @ManyToMany(() => TopicEntity, (topic) => topic.tokens, {
+    onDelete: 'CASCADE',
+  })
+  topics: TopicEntity[];
 
-  @Column({ type: 'varchar', length: 20, default: 'web' })
-  device_type: 'android' | 'ios' | 'web';
+  @Column({
+    type: 'enum',
+    enum: DeviceType,
+    default: DeviceType.WEB,
+    name: 'device_type',
+  })
+  device_type: DeviceType;
 
   @CreateDateColumn()
   created_at: Date;

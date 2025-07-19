@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { DeviceType } from '../entities/token.entity';
 
 export class CreateTokenDto {
   @ApiProperty({
@@ -16,8 +17,8 @@ export class CreateTokenDto {
   @IsString()
   token: string;
 
-  @ApiProperty({ enum: ['android', 'ios', 'web'], default: 'web' })
+  @ApiProperty({ type: String, enum: DeviceType, default: DeviceType.WEB })
   @IsString()
-  @IsEnum(['android', 'ios', 'web'])
-  device_type: 'android' | 'ios' | 'web';
+  @IsEnum(DeviceType)
+  device_type: DeviceType;
 }

@@ -5,14 +5,16 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NotificationEntity } from './entities/notification.entity';
+import {
+  NotificationEntity,
+  NotificationStatus,
+} from './entities/notification.entity';
 import { Repository } from 'typeorm';
 import { FCMService } from '../libs/fcm/fcm.service';
-import {
-  SendByUserNotificationDto,
-  SendNotification,
-} from './dto/send-notification.dto';
+import { SendNotification } from './dto/send-notification.dto';
 import { TokenService } from '../token/token.service';
+import { SendByUserNotificationDto } from './dto/send-by-user-notification.dto';
+import { FilterNotificationAllDto } from './dto/filter-notification.dto';
 
 @Injectable()
 export class NotificationService {
@@ -23,6 +25,9 @@ export class NotificationService {
     private tokenService: TokenService,
   ) {}
 
+  public async findAll(filter: FilterNotificationAllDto) {
+    return this.notificationRepository.find({ where: filter });
+  }
   public async sendNotification(dto: SendNotification) {
     const { token, body, title, image_url } = dto;
     return await this.fcmService.sendNotification(token, {
@@ -35,7 +40,7 @@ export class NotificationService {
     const notification = this.notificationRepository.create({
       body,
       data: data ? JSON.stringify(data) : undefined,
-      status: 'pending',
+      status: NotificationStatus.PENDING,
       title,
       user_id,
       image_url,
@@ -45,7 +50,8 @@ export class NotificationService {
     const savedNotification =
       await this.notificationRepository.save(notification);
     if (savedNotification) {
-      const tokens = savedNotification.tokens.map((token) => token.token);
+      const tokens =
+        savedNotification?.tokens?.map((token) => token.token) ?? [];
       try {
         const res = await this.fcmService.sendMulticastNotification(tokens, {
           notification: { body, imageUrl: image_url, title },
@@ -54,13 +60,13 @@ export class NotificationService {
           if (res.successCount) {
             await this.notificationRepository.update(
               { id: savedNotification.id },
-              { status: 'send' },
+              { status: NotificationStatus.SEND },
             );
             return res;
           } else {
             await this.notificationRepository.update(
               { id: savedNotification.id },
-              { status: 'failed' },
+              { status: NotificationStatus.FAILED },
             );
             throw new BadRequestException('FCM token is not registered');
           }

@@ -1,4 +1,5 @@
 import { TokenEntity } from 'src/modules/token/entities/token.entity';
+import { TopicEntity } from 'src/modules/topic/entities/topic.entity';
 import {
   Column,
   CreateDateColumn,
@@ -9,6 +10,11 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+export enum NotificationStatus {
+  PENDING = 'pending',
+  SEND = 'send',
+  FAILED = 'failed',
+}
 @Entity({ name: 'notifications' })
 export class NotificationEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -25,6 +31,9 @@ export class NotificationEntity {
   })
   tokens: TokenEntity[];
 
+  @ManyToMany(() => TopicEntity, (topic) => topic.notifications)
+  topics: TopicEntity[];
+
   @Column({ type: 'text' })
   title: string;
 
@@ -34,8 +43,8 @@ export class NotificationEntity {
   @Column({ type: 'jsonb', nullable: true })
   data?: string;
 
-  @Column({ enum: ['pending', 'send', 'failed'] })
-  status: 'pending' | 'send' | 'failed';
+  @Column({ enum: NotificationStatus })
+  status: NotificationStatus;
 
   @Column({ type: 'text', nullable: true })
   image_url?: string;

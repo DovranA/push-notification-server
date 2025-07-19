@@ -1,14 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsNotEmpty,
   IsObject,
   IsOptional,
+  IsNotEmpty,
   IsString,
+  IsUUID,
   IsUrl,
 } from 'class-validator';
 import type { Notification } from 'firebase-admin/lib/messaging/messaging-api';
 
-export class SendNotification implements Notification {
+export class SendByUserNotificationDto implements Notification {
   @ApiProperty({ nullable: true })
   @IsObject()
   @IsOptional()
@@ -16,10 +17,12 @@ export class SendNotification implements Notification {
 
   @ApiProperty({
     type: 'string',
+    example: '4bc8ea00-2235-49d4-b548-9ba38c99e2c7',
   })
   @IsNotEmpty()
   @IsString()
-  token: string;
+  @IsUUID('4')
+  user_id: string;
 
   @ApiProperty({
     example: 'notification body',

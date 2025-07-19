@@ -8,6 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { getTypeOrmConfig } from './config/type-orm.config';
 import { TokenModule } from 'src/modules/token/token.module';
 import { NotificationModule } from 'src/modules/notification/notification.module';
+import { TopicModule } from 'src/modules/topic/topic.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { NotificationModule } from 'src/modules/notification/notification.module
     }),
     TokenModule,
     NotificationModule,
+    TopicModule,
   ],
 })
 export class CoreModule {}
